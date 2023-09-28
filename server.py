@@ -34,7 +34,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # Receive request and process data
         self.data = self.request.recv(1024).strip()
 
-        print("Got a request of: %s\n" % self.data)
+        # print("Got a request of: %s\n" % self.data)
 
         # convert bytes from the data received to a string object
         decoded_data = self.data.decode('utf-8')
@@ -71,18 +71,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
     def get_200_status_code_response(self, path) -> str:
         content_type = self.get_content_type(path)
-
-        # f = open(path, 'r')
-        # content = f.read()
-        # response = "HTTP/1.1 200 OK\r\n" + content_type + "\r\nConnection Closed\r\n\r\n" + content
-        # f.close()
+        http_header = ("HTTP/1.1 200 OK\r\n{}\r\nConnection: close\r\n\r\n"
+                       .format(content_type))
 
         with (open(path, "r") as data_file):
             content_body = data_file.read()
-            http_header = ("HTTP/1.1 200 OK\r\n{}\r\nConnection: close\r\n\r\n"
-                           .format(content_type))
 
-            return http_header + content_body
+        return http_header + content_body
+
 
     def get_301_status_code_response(self, location) -> str:
         return "HTTP/1.1 301 Moved Permanently\r\nLocation: {0}\r\n\r\n".format(location)
@@ -127,13 +123,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return path.endswith(".html")
 
     def __is_location_moved(self, path) -> bool:
-        return path[-1] != "/"
+        return not path.endswith("/") and not self.__is_html(path) and not self.__is_css(path)
 
     def __is_path_base_directory(self, path) -> bool:
         return path[-1] == "/"
 
     def __is_path_valid(self, path) -> bool:
-        return os.path.exists(path) or os.path.isfile(path)
+        return os.path.exists(path)
 
     def __is_unsecure_directory(self, path) -> bool:
         return ".." in path
@@ -146,7 +142,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         elif status_code == 404:
             response = self.get_404_status_code_response()
         elif status_code == 301:
-            response = self.get_301_status_code_response(path + "/")
+            response = self.get_301_status_code_response(path[3:] + "/")
         elif status_code == 200:
             response = self.get_200_status_code_response(path)
 
