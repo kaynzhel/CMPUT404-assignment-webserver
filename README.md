@@ -34,6 +34,7 @@ Resources
   - https://uofa-cmput404.github.io/slides-xt/decks/more-http.html
 - Decoding bytes to string object for processing received request data:
   - https://www.digitalocean.com/community/tutorials/python-string-encode-decode
+  - https://www.w3schools.com/python/ref_string_splitlines.asp
 - os library path resources:
   - https://www.geeksforgeeks.org/python-check-if-a-file-or-directory-exists/
   - https://stackoverflow.com/questions/17752078/difference-between-os-path-exists-and-os-path-isfile
@@ -41,5 +42,7 @@ Resources
   - https://stackoverflow.com/questions/46924558/http-leading-blank-line-in-header-a-valid-http-request-header
 - Reading files in python:
   - https://www.pythontutorial.net/python-basics/python-read-text-file/
+- Connection close info:
+  - https://reqbin.com/req/84xntxmp/close-connection-example
 - Debugging resources:
   - https://github.com/psf/requests/issues/171: socket.error: [Errno 54] Connection reset by peer
