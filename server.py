@@ -31,6 +31,10 @@ import os
 
 class MyWebServer(socketserver.BaseRequestHandler):
     def handle(self) -> None:
+        """
+        Main method to handle incoming HTTP requests
+        :return: None
+        """
         # Receive request and process data
         self.data = self.request.recv(1024).strip()
 
@@ -51,6 +55,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.handle_path(requested_path)
 
     def handle_path(self, url_path) -> None:
+        """
+        Method to handle path logic
+        :param url_path: path from the HTTP request
+        :return: None
+        """
         path = "www" + url_path
 
         if self.__is_path_base_directory(path):
@@ -70,20 +79,32 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.send_response(200, path)
 
     def get_200_status_code_response(self, path) -> str:
+        """
+        If status is 200 OK, send the proper response
+        :param path: modified path from the HTTP request
+        :return: response string
+        """
         content_type = self.get_content_type(path)
-        http_header = ("HTTP/1.1 200 OK\r\n{}\r\nConnection: close\r\n\r\n"
-                       .format(content_type))
+        http_header = "HTTP/1.1 200 OK\r\n{}\r\nConnection: close\r\n\r\n".format(content_type)
 
         with (open(path, "r") as data_file):
             content_body = data_file.read()
 
         return http_header + content_body
 
-
     def get_301_status_code_response(self, location) -> str:
+        """
+        If status is 301 Moved Permanently, send the proper response
+        :param location: new location
+        :return: response string
+        """
         return "HTTP/1.1 301 Moved Permanently\r\nLocation: {0}\r\n\r\n".format(location)
 
     def get_404_status_code_response(self) -> str:
+        """
+        If status is 404 Not Found, send the proper response
+        :return: response string
+        """
         http_header = ("HTTP/1.1 404 Not Found\r\n"
                        "Content-Type: text/html\r\n"
                        "Connection: close\r\n\r\n")
@@ -93,6 +114,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return http_header + body
 
     def get_405_status_code_response(self) -> str:
+        """
+        If status is 405 Method Not Allowed such that the HTTP Requests are POST/PUT/DELETE,
+        send the proper response
+        :return: response string
+        """
         http_header = ("HTTP/1.1 405 Method Not Allowed\r\n"
                        "Content-Type: text/html\r\n"
                        "Connection: close\r\n\r\n")
@@ -102,6 +128,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return http_header + body
 
     def get_content_type(self, path) -> str:
+        """
+        Helper method to get the content type of the file
+        :param path: modified path from the HTTP request
+        :return: content type
+        """
         content_type = "Content-Type: "
 
         if self.__is_html(path):
@@ -114,27 +145,70 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return content_type
 
     def __is_css(self, path) -> bool:
+        """
+        Private helper method to determine if the file is a CSS file
+        :param path: modified path from the HTTP request
+        :return: if the file is a CSS file
+        """
         return path.endswith(".css")
 
     def __is_get_request(self, decoded_header) -> bool:
+        """
+        Private helper method to determine if the HTTP request is a GET request
+        :param path: modified path from the HTTP request
+        :return: if the request is a GET request
+        """
         return decoded_header[0] == "GET"
 
     def __is_html(self, path) -> bool:
+        """
+        Private helper method to determine if the file is an HTML file
+        :param path: modified path from the HTTP request
+        :return: if the file is an HTML file
+        """
         return path.endswith(".html")
 
     def __is_location_moved(self, path) -> bool:
+        """
+        Private helper method to determine if the path has a new location
+        Ths is when the path does not end with "/" and is not an HTML nor a CSS file
+        :param path: modified path from the HTTP request
+        :return: if the path has a new location
+        """
         return not path.endswith("/") and not self.__is_html(path) and not self.__is_css(path)
 
     def __is_path_base_directory(self, path) -> bool:
+        """
+        Private helper method to determine if the path is in the base directory
+        :param path: modified path from the HTTP request
+        :return: if the path is in the base directory
+        """
         return path[-1] == "/"
 
     def __is_path_valid(self, path) -> bool:
+        """
+        Private helper method to determine if the path exists
+        :param path: modified path from the HTTP request
+        :return: if the path exists
+        """
         return os.path.exists(path)
 
     def __is_unsecure_directory(self, path) -> bool:
+        """
+        Private helper method to determine if the path given is invalid or not
+        Example: If path has /../../../..., then it is invalid
+        :param path: modified path from the HTTP request
+        :return: if the path is invalid and not secure or not
+        """
         return ".." in path
 
     def send_response(self, status_code, path) -> None:
+        """
+        Helper method to send the appropriate response given the status code
+        :param status_code: determine HTTP status code
+        :param path: modified path from the HTTP request
+        :return: None
+        """
         response = ""
 
         if status_code == 405:
