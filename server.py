@@ -38,6 +38,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # Receive request and process data
         self.data = self.request.recv(1024).strip()
 
+        # from starter code, used for testing
         # print("Got a request of: %s\n" % self.data)
 
         # convert bytes from the data received to a string object
@@ -65,7 +66,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if self.__is_path_base_directory(path):
             path += "index.html"
 
-        # handle if the path doesn't end in "/", and thus, location is moved permanently
+        # handle if the path is a directory and doesn't end in "/", and thus, location is moved permanently
         if self.__is_location_moved(path):
             self.send_response(301, path)
             return
@@ -175,7 +176,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         :param path: modified path from the HTTP request
         :return: if the path has a new location
         """
-        return not path.endswith("/") and not self.__is_html(path) and not self.__is_css(path)
+        return os.path.isdir(path) and not path.endswith("/")
 
     def __is_path_base_directory(self, path) -> bool:
         """
