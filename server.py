@@ -88,7 +88,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         content_type = self.get_content_type(path)
         http_header = "HTTP/1.1 200 OK\r\n{}\r\nConnection: close\r\n\r\n".format(content_type)
 
-        with (open(path, "r") as data_file):
+        with open(path, "r") as data_file:
             content_body = data_file.read()
 
         return http_header + content_body
